@@ -1,0 +1,99 @@
+# Development Compose Configuration
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app
+      - app_cache:/home/nonroot/.cache
+      - go_path:/home/nonroot/go
+      - venv_path:/home/nonroot/.venv
+      - uv_cache_path:/home/nonroot/.uv
+      - rustup_path:/home/nonroot/.rustup
+      - cargo_path:/home/nonroot/.cargo
+      - node_path:/home/nonroot/.nvm
+      - node_cache_path:/home/nonroot/.npm
+    environment:
+      - PORT=8080
+      - APP_ENV=development
+      - MONGO_URI=mongodb://root:devpassword@mongodb:27017/app?authSource=admin
+      - REDIS_URI=redis://redis:6379
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - app_net
+
+  mongodb:
+    image: mongo:7.0
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=devpassword
+    volumes:
+      - mongodb_dev_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+    networks:
+      - app_net
+
+  postgres:
+    image: pgvector/pgvector:pg16
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=devpassword
+      - POSTGRES_DB=app
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+    networks:
+      - app_net
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_dev_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+    networks:
+      - app_net
+
+networks:
+  app_net:
+    driver: bridge
+
+volumes:
+  mongodb_dev_data:
+  postgres_dev_data:
+  redis_dev_data:
+  app_cache:
+  cargo_path:
+  go_path:
+  node_cache_path:
+  node_path:
+  rustup_path:
+  uv_cache_path:
+  venv_path:

@@ -1,0 +1,95 @@
+ARG DEBIAN_VERSION=trixie
+ARG GO_VERSION=1.26
+
+FROM golang:${GO_VERSION}-${DEBIAN_VERSION} AS golang-tmp
+
+FROM debian:${DEBIAN_VERSION}
+
+# Install required build tools, development utilities, and sudo
+RUN apt-get update && apt-get install -y --no-install-recommends              \
+    bash-completion                                                           \
+    build-essential                                                           \
+    ca-certificates                                                           \
+    clang                                                                     \
+    curl                                                                      \
+    git                                                                       \
+    jq                                                                        \
+    inetutils-ping                                                            \
+    llvm                                                                      \
+    make                                                                      \
+    sudo                                                                      \
+    wget                                                                      \
+    && rm -rf /var/lib/apt/lists/*
+
+# Define default UID and GID for the non-root user
+ARG UID=1000
+ARG GID=1000
+
+# Create a nonroot user and group matching the host user UID/GID dynamically
+RUN (groupadd -g ${GID} nonroot || groupadd nonroot) && \
+    (useradd -u ${UID} -g ${GID} -m -s /bin/bash nonroot || useradd -g ${GID} -m -s /bin/bash nonroot) && \
+    echo "nonroot ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+# Switch to the non-root user
+USER nonroot
+
+#
+# Make
+#
+RUN mkdir -p /home/nonroot/.cache && touch /home/nonroot/.cache/.keep
+VOLUME /home/nonroot/.cache
+
+#
+# Make python available using uv
+#
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV UV_COMPILE_BYTECODE=1
+ENV UV_LINK_MODE=copy
+ENV UV_TOOL_BIN_DIR=/usr/local/bin
+ENV UV_PROJECT_ENVIRONMENT=/home/nonroot/.venv
+ENV PATH="${UV_PROJECT_ENVIRONMENT}/bin:${PATH}"
+RUN mkdir -p /home/nonroot/.venv && touch /home/nonroot/.venv/.keep
+VOLUME /home/nonroot/.venv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+#
+# Make golang available
+#
+ENV GOPATH=/home/nonroot/go
+ENV PATH="$GOPATH/bin:/usr/local/go/bin:${PATH}"
+RUN mkdir -p /home/nonroot/go/src /home/nonroot/go/pkg /home/nonroot/go/bin
+VOLUME /home/nonroot/go
+COPY --from=golang-tmp /usr/local/go /usr/local/go
+
+# Install golangci-lint
+RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b /home/nonroot/.local/bin v1.60.3
+
+#
+# Make rust available using rustup
+#
+ENV RUSTUP_HOME=/home/nonroot/.rustup
+ENV CARGO_HOME=/home/nonroot/.cargo
+ENV PATH="${RUSTUP_HOME}/bin:${CARGO_HOME}/bin:${PATH}"
+VOLUME /home/nonroot/.rustup
+VOLUME /home/nonroot/.cargo
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --no-modify-path --profile minimal --default-toolchain none -y
+
+#
+# Make nodejs available
+#
+ENV NVM_DIR=/home/nonroot/.nvm
+RUN mkdir -p /home/nonroot/.npm && touch /home/nonroot/.npm/.keep
+VOLUME /home/nonroot/.npm
+VOLUME /home/nonroot/.nvm
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh | bash
+
+# Set up working directory and change ownership
+WORKDIR /app
+RUN chown -R nonroot:nonroot /app
+
+RUN bash -c "source $NVM_DIR/nvm.sh && nvm install --lts"
+RUN rustup toolchain install stable
+RUN uv python install
+
+CMD [ "sleep", "infinity" ]
