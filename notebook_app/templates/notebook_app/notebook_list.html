@@ -1,5 +1,6 @@
-{% extends 'notebook_app/base.html' %} {% block title %}Dashboard - Antigravity Notebooks{%
-endblock%} {% block extra_head %}
+{% extends 'notebook_app/base.html' %}
+{% block title %}Dashboard - Antigravity Notebooks{% endblock%}
+{% block extra_head %}
 <style>
   .dashboard-header {
     margin-bottom: 3rem;
@@ -267,23 +268,17 @@ endblock%} {% block extra_head %}
     margin-bottom: 1.5rem;
   }
 </style>
-{% endblock %} {% block content %}
+{% endblock %}
+
+{% block content %}
 <div class="dashboard-header">
   <div class="header-text">
     <h1>Your Python Notebooks</h1>
     <p>Interactive client-side execution dashboards powered by Pyodide</p>
   </div>
   <button class="btn" onclick="openCreateModal()">
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-    >
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+      stroke-linecap="round" stroke-linejoin="round">
       <line x1="12" y1="5" x2="12" y2="19"></line>
       <line x1="5" y1="12" x2="19" y2="12"></line>
     </svg>
@@ -297,16 +292,8 @@ endblock%} {% block extra_head %}
     <div class="card-meta">
       <a href="{% url 'notebook_detail' notebook.pk %}" class="card-title">{{ notebook.name }}</a>
       <div class="card-date">
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="10"></circle>
           <polyline points="12 6 12 12 16 14"></polyline>
         </svg>
@@ -314,16 +301,9 @@ endblock%} {% block extra_head %}
       </div>
     </div>
     <div class="card-actions">
-      <a
-        href="{% url 'notebook_detail' notebook.pk %}"
-        class="btn"
-        style="padding: 0.5rem 1rem; font-size: 0.9rem; box-shadow: none"
-        >Open Workspace</a
-      >
-      <button
-        class="btn btn-danger"
-        onclick="deleteNotebook({{ notebook.pk }}, '{{ notebook.name|escapejs }}')"
-      >
+      <a href="{% url 'notebook_detail' notebook.pk %}" class="btn"
+        style="padding: 0.5rem 1rem; font-size: 0.9rem; box-shadow: none">Open Workspace</a>
+      <button class="btn btn-danger" onclick="deleteNotebook({{ notebook.pk }}, '{{ notebook.name|escapejs }}')">
         Delete
       </button>
     </div>
@@ -345,16 +325,8 @@ endblock%} {% block extra_head %}
       {% csrf_token %}
       <div class="form-group">
         <label for="notebook-name">Notebook Name</label>
-        <input
-          type="text"
-          id="notebook-name"
-          name="name"
-          class="form-control"
-          placeholder="e.g. Data Analysis Sandbox"
-          required
-          autocomplete="off"
-          autofocus
-        />
+        <input type="text" id="notebook-name" name="name" class="form-control" placeholder="e.g. Data Analysis Sandbox"
+          required autocomplete="off" autofocus />
       </div>
       <div class="modal-actions">
         <button type="button" class="btn btn-secondary" onclick="closeCreateModal()">Cancel</button>
@@ -363,7 +335,9 @@ endblock%} {% block extra_head %}
     </form>
   </div>
 </div>
-{% endblock %} {% block extra_js %}
+{% endblock %}
+
+{% block extra_js %}
 <script>
   function openCreateModal() {
     document.getElementById("create-modal").style.display = "flex";

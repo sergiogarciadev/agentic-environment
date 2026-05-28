@@ -1,11 +1,9 @@
-{% extends 'notebook_app/base.html' %} {% block title %}{{ notebook.name }} - Antigravity
-Workspace{% endblock %} {% block extra_head %}
+{% extends 'notebook_app/base.html' %}
+{% block title %}{{ notebook.name }} - Antigravity Workspace{% endblock %}
+{% block extra_head %}
 <!-- Injected Monaco editor default stylesheets and fonts globally -->
-<link
-  rel="stylesheet"
-  data-name="vs/editor/editor.main"
-  href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.48.0/min/vs/editor/editor.main.min.css"
-/>
+<link rel="stylesheet" data-name="vs/editor/editor.main"
+  href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.48.0/min/vs/editor/editor.main.min.css" />
 <style>
   /* Styling for the custom lit component container */
   notebook-editor {
@@ -26,6 +24,7 @@ Workspace{% endblock %} {% block extra_head %}
   }
 
   @keyframes pulse {
+
     0%,
     100% {
       opacity: 0.6;
@@ -70,7 +69,9 @@ Workspace{% endblock %} {% block extra_head %}
     border: 1px solid var(--bg-surface-border);
   }
 </style>
-{% endblock %} {% block content %}
+{% endblock %}
+
+{% block content %}
 <!-- Lit Web Component -->
 <notebook-editor notebook-id="{{ notebook.pk }}">
   <!-- Skeleton loader shown before webcomponent is hydrated -->
@@ -86,7 +87,9 @@ Workspace{% endblock %} {% block extra_head %}
     <div class="sk-cell"></div>
   </div>
 </notebook-editor>
-{% endblock %} {% block extra_js %}
+{% endblock %}
+
+{% block extra_js %}
 <!-- Pyodide CDN Loader -->
-<script src="https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.js"></script>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.29.4/full/pyodide.js"></script>
 {% endblock %}

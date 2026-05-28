@@ -57,7 +57,7 @@ export class NotebookEditor extends LitElement {
       // Check if global loadPyodide is available (loaded in notebook_detail.html from CDN)
       if (typeof window !== "undefined" && (window as any).loadPyodide) {
         this.pyodide = await (window as any).loadPyodide({
-          indexURL: "https://cdn.jsdelivr.net/pyodide/v0.26.1/full/",
+          indexURL: "https://cdn.jsdelivr.net/pyodide/v0.29.4/full/",
         });
 
         this.pyodideLoaded = true;
