@@ -1,6 +1,7 @@
 // Main entry point for Vite asset pipeline
 // Imports and registers Lit Web Components
 import "./components/monaco-editor";
+import "./components/markdown-editor";
 import "./components/notebook-cell";
 import "./components/notebook-editor";
 

@@ -50,7 +50,13 @@ def api_get_notebook(request, pk):
             outputs_data.append({"type": output.type, "content": output.content})
 
         cells_data.append(
-            {"id": cell.pk, "code": cell.code, "order": cell.order, "outputs": outputs_data}
+            {
+                "id": cell.pk,
+                "code": cell.code,
+                "type": cell.type,
+                "order": cell.order,
+                "outputs": outputs_data,
+            }
         )
 
     return JsonResponse({"id": notebook.pk, "name": notebook.name, "cells": cells_data})
@@ -82,10 +88,13 @@ def api_save_notebook(request, pk):
             # Re-create cells and their outputs
             for cell_data in cells:
                 code = cell_data.get("code", "")
+                cell_type = cell_data.get("type", "python")
                 order = cell_data.get("order", 0)
                 outputs = cell_data.get("outputs", [])
 
-                db_cell = NotebookCell.objects.create(notebook=notebook, code=code, order=order)
+                db_cell = NotebookCell.objects.create(
+                    notebook=notebook, code=code, type=cell_type, order=order
+                )
 
                 for output_data in outputs:
                     out_type = output_data.get("type", "text")

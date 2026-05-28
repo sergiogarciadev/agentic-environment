@@ -6,6 +6,7 @@ import { CellOutputData } from "./notebook-cell";
 interface CellData {
   id?: number;
   code: string;
+  type?: string;
   order: number;
   outputs: CellOutputData[];
   isRunning?: boolean;
@@ -29,6 +30,15 @@ export class NotebookEditor extends LitElement {
     return this; // Render in the Light DOM for seamless global bootstrap styles and modal overlays
   }
 
+  connectedCallback() {
+    super.connectedCallback();
+    // Clear skeleton loader immediately when the custom element is connected to the DOM
+    const skeleton = this.querySelector(".editor-skeleton");
+    if (skeleton) {
+      skeleton.remove();
+    }
+  }
+
   async firstUpdated() {
     await this.fetchNotebook();
     await this.initPyodide();
@@ -42,6 +52,7 @@ export class NotebookEditor extends LitElement {
       this.cells = data.cells.map((cell: any) => ({
         id: cell.id,
         code: cell.code,
+        type: cell.type || "python",
         order: cell.order,
         outputs: cell.outputs || [],
         isRunning: false,
@@ -195,9 +206,33 @@ except Exception as e:
     this.requestUpdate();
   }
 
-  private addCell() {
+  private handleCellTypeChange(e: CustomEvent) {
+    const { index, type } = e.detail;
+    this.cells[index].type = type;
+    if (type === "markdown") {
+      this.cells[index].outputs = []; // Clear outputs for markdown cells
+    }
+    this.hasUnsavedChanges = true;
+    this.requestUpdate();
+  }
+
+  private addCodeCell() {
     const newCell: CellData = {
       code: "# Write Python code here\n",
+      type: "python",
+      order: this.cells.length,
+      outputs: [],
+      isRunning: false,
+    };
+    this.cells = [...this.cells, newCell];
+    this.hasUnsavedChanges = true;
+    this.requestUpdate();
+  }
+
+  private addMarkdownCell() {
+    const newCell: CellData = {
+      code: "### Markdown Header\n\nDouble-click to edit this cell.",
+      type: "markdown",
       order: this.cells.length,
       outputs: [],
       isRunning: false,
@@ -269,6 +304,7 @@ except Exception as e:
           name: this.name,
           cells: this.cells.map((cell) => ({
             code: cell.code,
+            type: cell.type || "python",
             order: cell.order,
             outputs: cell.outputs,
           })),
@@ -486,9 +522,11 @@ except Exception as e:
               .index="${index}"
               .cellId="${cell.id || 0}"
               .code="${cell.code}"
+              .type="${cell.type || "python"}"
               .outputs="${cell.outputs}"
               .isRunning="${cell.isRunning || false}"
               @cell-code-update="${this.handleCellCodeUpdate}"
+              @cell-type-change="${this.handleCellTypeChange}"
               @cell-run="${this.handleCellRun}"
               @cell-delete="${this.handleCellDelete}"
               @cell-move-up="${this.handleCellMoveUp}"
@@ -498,17 +536,18 @@ except Exception as e:
         )}
       </div>
 
-      <!-- Add Cell Button -->
+      <!-- Add Cell Buttons Group -->
       <div
         class="add-cell-container"
         style="
         display: flex;
         justify-content: center;
+        gap: 1.5rem;
         margin: 3rem 0;
       "
       >
         <button
-          @click="${this.addCell}"
+          @click="${this.addCodeCell}"
           class="btn"
           style="
           background: rgba(255, 255, 255, 0.04);
@@ -528,7 +567,31 @@ except Exception as e:
             e.target.style.color = "var(--text-muted)";
           }}"
         >
-          + Add New Code Cell
+          + Add Code Cell
+        </button>
+
+        <button
+          @click="${this.addMarkdownCell}"
+          class="btn"
+          style="
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px dashed rgba(255, 255, 255, 0.15);
+          color: var(--text-muted);
+          box-shadow: none;
+          padding: 0.8rem 2rem;
+          border-radius: 50px;
+          transition: all 0.2s ease;
+        "
+          @mouseover="${(e: any) => {
+            e.target.style.borderColor = "var(--secondary)";
+            e.target.style.color = "#fff";
+          }}"
+          @mouseout="${(e: any) => {
+            e.target.style.borderColor = "rgba(255, 255, 255, 0.15)";
+            e.target.style.color = "var(--text-muted)";
+          }}"
+        >
+          + Add Markdown Cell
         </button>
       </div>
     `;

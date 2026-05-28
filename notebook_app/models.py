@@ -16,11 +16,16 @@ class Notebook(models.Model):
 
 class NotebookCell(models.Model):
     """
-    A cell inside a Notebook, holding executable Python code.
+    A cell inside a Notebook, holding executable Python code or Markdown.
     """
 
+    TYPE_CHOICES = [
+        ("python", "Python"),
+        ("markdown", "Markdown"),
+    ]
     notebook = models.ForeignKey(Notebook, related_name="cells", on_delete=models.CASCADE)
     code = models.TextField(blank=True, default="")
+    type = models.CharField(max_length=10, choices=TYPE_CHOICES, default="python")
     order = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

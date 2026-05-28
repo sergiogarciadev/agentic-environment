@@ -1,95 +1,114 @@
 {% extends 'notebook_app/base.html' %}
+
 {% block title %}{{ notebook.name }} - Antigravity Workspace{% endblock %}
+
 {% block extra_head %}
 <!-- Injected Monaco editor default stylesheets and fonts globally -->
 <link rel="stylesheet" data-name="vs/editor/editor.main"
-  href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.48.0/min/vs/editor/editor.main.min.css" />
+    href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.48.0/min/vs/editor/editor.main.min.css">
+<!-- KaTeX LaTeX Math CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<!-- Highlight.js Code Syntax Highlighting CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 <style>
-  /* Styling for the custom lit component container */
-  notebook-editor {
-    display: block;
-    min-height: 500px;
-  }
-
-  .editor-skeleton {
-    background: var(--bg-surface);
-    border: 1px solid var(--bg-surface-border);
-    border-radius: 12px;
-    padding: 2.5rem;
-    min-height: 400px;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    animation: pulse 1.8s infinite ease-in-out;
-  }
-
-  @keyframes pulse {
-
-    0%,
-    100% {
-      opacity: 0.6;
+    /* Styling for the custom lit component container */
+    notebook-editor {
+        display: block;
+        min-height: 500px;
     }
 
-    50% {
-      opacity: 0.3;
+    .editor-skeleton {
+        background: var(--bg-surface);
+        border: 1px solid var(--bg-surface-border);
+        border-radius: 12px;
+        padding: 2.5rem;
+        min-height: 400px;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        animation: pulse 1.8s infinite ease-in-out;
     }
-  }
 
-  .sk-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid var(--bg-surface-border);
-    padding-bottom: 1.5rem;
-  }
+    @keyframes pulse {
 
-  .sk-title {
-    height: 2.5rem;
-    width: 300px;
-    background: rgba(255, 255, 255, 0.08);
-    border-radius: 8px;
-  }
+        0%,
+        100% {
+            opacity: 0.6;
+        }
 
-  .sk-buttons {
-    display: flex;
-    gap: 1rem;
-  }
+        50% {
+            opacity: 0.3;
+        }
+    }
 
-  .sk-btn {
-    height: 2.5rem;
-    width: 100px;
-    background: rgba(255, 255, 255, 0.08);
-    border-radius: 8px;
-  }
+    .sk-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--bg-surface-border);
+        padding-bottom: 1.5rem;
+    }
 
-  .sk-cell {
-    height: 180px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
-    border: 1px solid var(--bg-surface-border);
-  }
+    .sk-title {
+        height: 2.5rem;
+        width: 300px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+    }
+
+    .sk-buttons {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .sk-btn {
+        height: 2.5rem;
+        width: 100px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+    }
+
+    .sk-cell {
+        height: 180px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        border: 1px solid var(--bg-surface-border);
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 <!-- Lit Web Component -->
 <notebook-editor notebook-id="{{ notebook.pk }}">
-  <!-- Skeleton loader shown before webcomponent is hydrated -->
-  <div class="editor-skeleton">
-    <div class="sk-header">
-      <div class="sk-title"></div>
-      <div class="sk-buttons">
-        <div class="sk-btn"></div>
-        <div class="sk-btn"></div>
-      </div>
+    <!-- Skeleton loader shown before webcomponent is hydrated -->
+    <div class="editor-skeleton">
+        <div class="sk-header">
+            <div class="sk-title"></div>
+            <div class="sk-buttons">
+                <div class="sk-btn"></div>
+                <div class="sk-btn"></div>
+            </div>
+        </div>
+        <div class="sk-cell"></div>
+        <div class="sk-cell"></div>
     </div>
-    <div class="sk-cell"></div>
-    <div class="sk-cell"></div>
-  </div>
 </notebook-editor>
 {% endblock %}
 
 {% block extra_js %}
 <!-- Pyodide CDN Loader -->
 <script src="https://cdn.jsdelivr.net/pyodide/v0.29.4/full/pyodide.js"></script>
+<!-- Marked Markdown Parser CDN -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<!-- KaTeX LaTeX Math Parser CDN -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<!-- Highlight.js Code Syntax Highlighter CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<!-- Mermaid Diagramming CDN -->
+<script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true });
+    window.mermaid = mermaid;
+</script>
 {% endblock %}
