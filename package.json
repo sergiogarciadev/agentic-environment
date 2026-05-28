@@ -8,9 +8,14 @@
   "scripts": {
     "lint": "eslint \"frontend/**/*.{js,jsx,ts,tsx}\"",
     "format": "prettier --write \"frontend/**/*.{js,jsx,ts,tsx,css,html,json}\"",
-    "lint:fix": "eslint \"frontend/**/*.{js,jsx,ts,tsx}\" --fix"
+    "lint:fix": "eslint \"frontend/**/*.{js,jsx,ts,tsx}\" --fix",
+    "dev:backend": "uv run python backend/manage.py runserver 0.0.0.0:8000",
+    "dev:shell": "npm run dev -w frontend/shell",
+    "dev:app1": "npm run dev -w frontend/app1",
+    "dev": "concurrently \"npm:dev:backend\" \"npm:dev:shell\" \"npm:dev:app1\" --names \"backend,shell,app1\" --prefix-colors \"cyan,green,magenta\""
   },
   "devDependencies": {
+    "concurrently": "^9.2.1",
     "eslint": "^10.4.0",
     "prettier": "^3.8.3"
   }
