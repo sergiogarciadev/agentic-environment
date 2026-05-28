@@ -16,6 +16,9 @@ export default defineConfig({
     target: "esnext",
     minify: false,
     cssCodeSplit: false,
+    rollupOptions: {
+      input: "./src/main.js",
+    },
   },
   server: {
     host: "0.0.0.0",
