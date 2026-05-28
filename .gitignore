@@ -1,0 +1,18 @@
+# Frontend dependencies & builds
+node_modules/
+frontend/dist/
+.vite/
+
+# Python Virtualenv & Caches
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pre-commit/
+
+# OS files
+.DS_Store
+
+# Local Database
+db.sqlite3
+staticfiles/

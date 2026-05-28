@@ -1,0 +1,173 @@
+{% load django_vite %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Antigravity Pyodide Notebooks{% endblock %}</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Global CSS / Style tokens -->
+    <style>
+      :root {
+        --bg-base: #0b0f19;
+        --bg-surface: rgba(17, 24, 39, 0.7);
+        --bg-surface-border: rgba(255, 255, 255, 0.08);
+        --primary: #8b5cf6;
+        --primary-hover: #a78bfa;
+        --secondary: #10b981;
+        --accent: #f43f5e;
+        --text-main: #f3f4f6;
+        --text-muted: #9ca3af;
+        --transition-speed: 0.3s;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Outfit", "Inter", sans-serif;
+        background-color: var(--bg-base);
+        background-image:
+          radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
+          radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.1) 0px, transparent 50%);
+        background-attachment: fixed;
+        color: var(--text-main);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        overflow-x: hidden;
+      }
+
+      /* Navbar Styling */
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        background: rgba(11, 15, 25, 0.7);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-bottom: 1px solid var(--bg-surface-border);
+      }
+
+      .nav-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .logo {
+        font-size: 1.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .logo span {
+        font-size: 0.8rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.1rem;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        background: rgba(139, 92, 246, 0.15);
+        border: 1px solid rgba(139, 92, 246, 0.3);
+        color: var(--primary-hover);
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 1.5rem;
+      }
+
+      .nav-link {
+        color: var(--text-muted);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color var(--transition-speed) ease;
+      }
+
+      .nav-link:hover {
+        color: var(--text-main);
+      }
+
+      /* Main layout styling */
+      main {
+        flex: 1;
+        max-width: 1200px;
+        width: 100%;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+
+      footer {
+        text-align: center;
+        padding: 2rem;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        border-top: 1px solid var(--bg-surface-border);
+        background: rgba(11, 15, 25, 0.4);
+      }
+
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: var(--bg-base);
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--primary);
+      }
+    </style>
+
+    <!-- Vite Tags integration -->
+    {% vite_hmr_client %} {% vite_asset 'frontend/src/main.ts' %} {% block extra_head %}{% endblock
+    %}
+  </head>
+
+  <body>
+    <header>
+      <div class="nav-container">
+        <a href="{% url 'notebook_list' %}" class="logo"> ⚡ antigravity <span>pyodide</span> </a>
+        <div class="nav-links">
+          <a href="{% url 'notebook_list' %}" class="nav-link">Notebooks Dashboard</a>
+        </div>
+      </div>
+    </header>
+
+    <main>{% block content %}{% endblock %}</main>
+
+    <footer>
+      <p>&copy; 2026 Antigravity Notebook Engine &bull; Powering WebAssembly Python Environments</p>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>

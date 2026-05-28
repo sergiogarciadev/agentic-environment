@@ -1,0 +1,92 @@
+{% extends 'notebook_app/base.html' %} {% block title %}{{ notebook.name }} - Antigravity
+Workspace{% endblock %} {% block extra_head %}
+<!-- Injected Monaco editor default stylesheets and fonts globally -->
+<link
+  rel="stylesheet"
+  data-name="vs/editor/editor.main"
+  href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.48.0/min/vs/editor/editor.main.min.css"
+/>
+<style>
+  /* Styling for the custom lit component container */
+  notebook-editor {
+    display: block;
+    min-height: 500px;
+  }
+
+  .editor-skeleton {
+    background: var(--bg-surface);
+    border: 1px solid var(--bg-surface-border);
+    border-radius: 12px;
+    padding: 2.5rem;
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    animation: pulse 1.8s infinite ease-in-out;
+  }
+
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 0.6;
+    }
+
+    50% {
+      opacity: 0.3;
+    }
+  }
+
+  .sk-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--bg-surface-border);
+    padding-bottom: 1.5rem;
+  }
+
+  .sk-title {
+    height: 2.5rem;
+    width: 300px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+  }
+
+  .sk-buttons {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .sk-btn {
+    height: 2.5rem;
+    width: 100px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+  }
+
+  .sk-cell {
+    height: 180px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border: 1px solid var(--bg-surface-border);
+  }
+</style>
+{% endblock %} {% block content %}
+<!-- Lit Web Component -->
+<notebook-editor notebook-id="{{ notebook.pk }}">
+  <!-- Skeleton loader shown before webcomponent is hydrated -->
+  <div class="editor-skeleton">
+    <div class="sk-header">
+      <div class="sk-title"></div>
+      <div class="sk-buttons">
+        <div class="sk-btn"></div>
+        <div class="sk-btn"></div>
+      </div>
+    </div>
+    <div class="sk-cell"></div>
+    <div class="sk-cell"></div>
+  </div>
+</notebook-editor>
+{% endblock %} {% block extra_js %}
+<!-- Pyodide CDN Loader -->
+<script src="https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.js"></script>
+{% endblock %}

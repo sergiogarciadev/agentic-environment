@@ -1,0 +1,422 @@
+{% extends 'notebook_app/base.html' %} {% block title %}Dashboard - Antigravity Notebooks{%
+endblock%} {% block extra_head %}
+<style>
+  .dashboard-header {
+    margin-bottom: 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+
+  .header-text h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    letter-spacing: -0.05rem;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #fff 0%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .header-text p {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+  }
+
+  /* Primary CTA Button */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%);
+    border: none;
+    color: white;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    font-family: "Outfit", sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 14px rgba(139, 92, 246, 0.4);
+    text-decoration: none;
+  }
+
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.6);
+    background: linear-gradient(135deg, var(--primary-hover) 0%, var(--primary) 100%);
+  }
+
+  .btn:active {
+    transform: translateY(0);
+  }
+
+  .btn-danger {
+    background: rgba(244, 63, 94, 0.15);
+    border: 1px solid rgba(244, 63, 94, 0.3);
+    color: #f87171;
+    box-shadow: none;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .btn-danger:hover {
+    background: #f43f5e;
+    color: white;
+    box-shadow: 0 4px 14px rgba(244, 63, 94, 0.4);
+    border-color: transparent;
+  }
+
+  /* Grid of Notebooks */
+  .notebooks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2rem;
+  }
+
+  .notebook-card {
+    background: var(--bg-surface);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--bg-surface-border);
+    border-radius: 12px;
+    padding: 1.8rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 200px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .notebook-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .notebook-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(139, 92, 246, 0.4);
+    box-shadow:
+      0 12px 30px rgba(0, 0, 0, 0.4),
+      0 0 15px rgba(139, 92, 246, 0.1);
+  }
+
+  .notebook-card:hover::before {
+    opacity: 1;
+  }
+
+  .card-meta {
+    margin-bottom: 1.5rem;
+  }
+
+  .card-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
+    text-decoration: none;
+    display: block;
+    transition: color 0.2s ease;
+  }
+
+  .card-title:hover {
+    color: var(--primary-hover);
+  }
+
+  .card-date {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .card-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+  }
+
+  /* Modal Form / Popover Styling */
+  .create-modal-container {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(11, 15, 25, 0.8);
+    backdrop-filter: blur(8px);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .create-modal {
+    background: #111827;
+    border: 1px solid var(--bg-surface-border);
+    border-radius: 16px;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    animation: modalFadeIn 0.3s ease;
+  }
+
+  @keyframes modalFadeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .modal-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    color: var(--text-main);
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+  }
+
+  .form-control {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--bg-surface-border);
+    border-radius: 8px;
+    color: var(--text-main);
+    padding: 0.8rem 1rem;
+    font-size: 1rem;
+    font-family: "Outfit", sans-serif;
+    transition: all 0.2s ease;
+  }
+
+  .form-control:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.25);
+  }
+
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .btn-secondary {
+    background: transparent;
+    border: 1px solid var(--bg-surface-border);
+    color: var(--text-muted);
+  }
+
+  .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-main);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 5rem 2rem;
+    background: var(--bg-surface);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--bg-surface-border);
+    border-radius: 12px;
+    color: var(--text-muted);
+  }
+
+  .empty-state h3 {
+    color: var(--text-main);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .empty-state p {
+    margin-bottom: 1.5rem;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="dashboard-header">
+  <div class="header-text">
+    <h1>Your Python Notebooks</h1>
+    <p>Interactive client-side execution dashboards powered by Pyodide</p>
+  </div>
+  <button class="btn" onclick="openCreateModal()">
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <line x1="12" y1="5" x2="12" y2="19"></line>
+      <line x1="5" y1="12" x2="19" y2="12"></line>
+    </svg>
+    New Notebook
+  </button>
+</div>
+
+<div class="notebooks-grid">
+  {% for notebook in notebooks %}
+  <div class="notebook-card" id="notebook-card-{{ notebook.pk }}">
+    <div class="card-meta">
+      <a href="{% url 'notebook_detail' notebook.pk %}" class="card-title">{{ notebook.name }}</a>
+      <div class="card-date">
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        <span>Updated {{ notebook.updated_at|timesince }} ago</span>
+      </div>
+    </div>
+    <div class="card-actions">
+      <a
+        href="{% url 'notebook_detail' notebook.pk %}"
+        class="btn"
+        style="padding: 0.5rem 1rem; font-size: 0.9rem; box-shadow: none"
+        >Open Workspace</a
+      >
+      <button
+        class="btn btn-danger"
+        onclick="deleteNotebook({{ notebook.pk }}, '{{ notebook.name|escapejs }}')"
+      >
+        Delete
+      </button>
+    </div>
+  </div>
+  {% empty %}
+  <div class="empty-state">
+    <h3>No notebooks found</h3>
+    <p>Create your very first in-browser executable workspace now!</p>
+    <button class="btn" onclick="openCreateModal()">Create Notebook</button>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Create Modal Dialog -->
+<div class="create-modal-container" id="create-modal">
+  <div class="create-modal">
+    <h3 class="modal-title">Create New Notebook</h3>
+    <form method="POST" action="{% url 'notebook_list' %}">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="notebook-name">Notebook Name</label>
+        <input
+          type="text"
+          id="notebook-name"
+          name="name"
+          class="form-control"
+          placeholder="e.g. Data Analysis Sandbox"
+          required
+          autocomplete="off"
+          autofocus
+        />
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" onclick="closeCreateModal()">Cancel</button>
+        <button type="submit" class="btn">Create & Open</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script>
+  function openCreateModal() {
+    document.getElementById("create-modal").style.display = "flex";
+    document.getElementById("notebook-name").focus();
+  }
+
+  function closeCreateModal() {
+    document.getElementById("create-modal").style.display = "none";
+  }
+
+  // Close modal if user clicks outside of it
+  window.onclick = function (event) {
+    const modal = document.getElementById("create-modal");
+    if (event.target == modal) {
+      closeCreateModal();
+    }
+  };
+
+  async function deleteNotebook(id, name) {
+    if (
+      !confirm(
+        `Are you absolutely sure you want to delete "${name}"? This action is permanent and cannot be undone.`,
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/notebooks/${id}/delete/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const result = await response.json();
+      if (result.status === "success") {
+        const card = document.getElementById(`notebook-card-${id}`);
+        card.style.opacity = 0;
+        card.style.transform = "scale(0.9)";
+        setTimeout(() => {
+          card.remove();
+          // Reload if no cards left to display empty state
+          if (document.querySelectorAll(".notebook-card").length === 0) {
+            window.location.reload();
+          }
+        }, 300);
+      } else {
+        alert(`Error: ${result.error || "Failed to delete notebook"}`);
+      }
+    } catch (err) {
+      alert(`Error: ${err.message}`);
+    }
+  }
+</script>
+{% endblock %}
