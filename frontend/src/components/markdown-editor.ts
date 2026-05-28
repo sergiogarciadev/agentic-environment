@@ -84,15 +84,20 @@ export class MarkdownEditor extends LitElement {
 
   @state() private parsedHtml = "";
 
+  private resizeObserver: ResizeObserver | null = null;
+
   createRenderRoot() {
     return this; // Render in the Light DOM
   }
 
   firstUpdated() {
     this.updatePreview();
+    this.setupResizeSynchronization();
   }
 
   async updated(changedProperties: Map<string, any>) {
+    this.setupResizeSynchronization();
+
     if (changedProperties.has("value")) {
       this.updatePreview();
       await this.updateComplete;
@@ -102,6 +107,34 @@ export class MarkdownEditor extends LitElement {
       if (previewPane) {
         renderMarkdownExtensions(previewPane as HTMLElement);
       }
+    }
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+      this.resizeObserver = null;
+    }
+  }
+
+  private setupResizeSynchronization() {
+    if (this.resizeObserver) return;
+
+    const editorContainer = this.querySelector(".monaco-editor-container");
+    const previewPane = this.querySelector(".preview-pane") as HTMLElement;
+
+    if (editorContainer && previewPane && typeof ResizeObserver !== "undefined") {
+      this.resizeObserver = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          const height = entry.contentRect.height;
+          if (height > 0) {
+            // Synchronize the preview pane height in pixels exactly with the editor container height
+            previewPane.style.height = `${height}px`;
+          }
+        }
+      });
+      this.resizeObserver.observe(editorContainer);
     }
   }
 
@@ -145,7 +178,7 @@ export class MarkdownEditor extends LitElement {
       "
       >
         <!-- Left Side: Monaco Editor -->
-        <div class="editor-pane" style="display: flex; flex-direction: column;">
+        <div class="editor-pane" style="display: flex; flex-direction: column; min-height: 0;">
           <monaco-editor
             .value="${this.value}"
             language="markdown"

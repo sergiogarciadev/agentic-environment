@@ -93,7 +93,7 @@ export class MonacoEditor extends LitElement {
     return html`
       <div
         class="monaco-editor-container"
-        style="width: 100%; height: 200px; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08);"
+        style="width: 100%; height: 200px; min-height: 100px; max-height: 800px; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); resize: vertical;"
       ></div>
     `;
   }
