@@ -12,7 +12,9 @@ export default defineConfig({
       shared: [],
     }),
   ],
+  base: "http://localhost:5001/",
   build: {
+    modulePreload: false,
     target: "esnext",
     minify: false,
     cssCodeSplit: false,
