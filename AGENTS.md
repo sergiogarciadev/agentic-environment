@@ -10,41 +10,20 @@ All project workflows must take place within the running Docker containers.
 
 ## Container Architecture
 
-The development environment is orchestrated using Docker Compose (`compose.yml`), defining three services:
-1. **`app`**: Built from the custom `Dockerfile`, latest Debian Linux providing updated environment with:
-  - development utilities:
-    - `git`
-    - `jq`
-  - programming environment:
-    - `clang` and `llvm` managed by `apt-get`
-    - `cmake` and `make` managed by `apt-get`
-    - `dotnet` and `pwsh` managed by `apt-get`
-    - `gcc` and `g++` managed by `apt-get`
-    - `go`: 1.26 installed manually
-    - `java` and `javac` managed by `apt-get`
-    - `node` and `npm` managed by `nvm`
-    - `python` managed by `uv`
-    - `rustc` and `cargo` managed by `rustup`
-  - system utilities:
-    - `apt-get`
-    - `curl`
-    - `ping`
-    - `wget`
-    - `sudo`
+The development environment is orchestrated using Docker Compose (`compose.yml`), defining four services:
+
+1. **`app`**: Built from the custom `Dockerfile`, latest Debian Linux providing updated environment.
 2. **`mongodb`**: Persisted dev MongoDB instance.
 3. **`postgres`**: Persisted dev PostgreSQL instance with pgvector extension.
 4. **`redis`**: Persisted dev Redis cache.
 
+## Usage Instructions
+
+Prior to initiating any action, all agents should:
+
+1. **Check Stack Status**: Run `docker compose ps` to ensure development containers are active.
+2. **Permission errors**: If you get permission errors, it may be because the volumes are not mounted correctly. To fix it, rebuild and restart the `app` service with `docker compose build app` and `docker compose up -d`.
+
 If required, install tools in the container using the corresponding package manager, such as `apt-get`, `npm`, `uv`, `cargo`, etc. You may also use `curl` and `wget` to download and install tools.
 
-**IMPORTANT:** Never run commands in the host, instead use `docker compose exec app <command>`.
-
----
-
-## Package Caches
-
-Packages are cached using docker volumes, if you got any error for missing installed tools (like node, npm, cargo, etc), just rebuild the docker image with `docker compose build app` and restart the stack with `docker compose up -d`.
-
-Prior to initiating code modifications, all agents should:
-1. **Check Stack Status**: Run `docker compose ps` to ensure development containers are active.
-2. **Ensure Volumes are Mounted**: Run `ls -lha $HOME` to check if any directory are accessible only by root user, which indicates incorrect mounts. To fix rebuild and restart `app` service.
+**IMPORTANT:** Never run commands in the host, instead use `docker compose exec app <command>` or start an interactive session with `docker compose exec -it app bash`.

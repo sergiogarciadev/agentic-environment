@@ -14,7 +14,6 @@ services:
       - app_cache:/home/nonroot/.cache
       - go_path:/home/nonroot/go
       - venv_path:/home/nonroot/.venv
-      - uv_cache_path:/home/nonroot/.uv
       - rustup_path:/home/nonroot/.rustup
       - cargo_path:/home/nonroot/.cargo
       - node_path:/home/nonroot/.nvm
@@ -26,6 +25,8 @@ services:
       - REDIS_URI=redis://redis:6379
     depends_on:
       mongodb:
+        condition: service_healthy
+      postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
@@ -95,5 +96,4 @@ volumes:
   node_cache_path:
   node_path:
   rustup_path:
-  uv_cache_path:
   venv_path:

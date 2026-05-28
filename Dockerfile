@@ -5,22 +5,32 @@ FROM golang:${GO_VERSION}-${DEBIAN_VERSION} AS golang-tmp
 
 FROM debian:${DEBIAN_VERSION}
 
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+ENV DEBIAN_FRONTEND=noninteractive
+
 # Install required build tools, development utilities, and sudo
 RUN apt-get update && apt-get install -y --no-install-recommends              \
+    ant                                                                       \
     bash-completion                                                           \
     build-essential                                                           \
     ca-certificates                                                           \
     clang                                                                     \
     cmake                                                                     \
     curl                                                                      \
+    file                                                                      \
     git                                                                       \
     jq                                                                        \
     inetutils-ping                                                            \
     llvm                                                                      \
     make                                                                      \
     maven                                                                     \
+    ninja-build                                                               \
     openjdk-25-jdk                                                            \
+    openssl                                                                   \
     sudo                                                                      \
+    vim                                                                       \
+    xz-utils                                                                  \
     wget                                                                      \
     && rm -rf /var/lib/apt/lists/*
 
@@ -31,6 +41,26 @@ RUN <<-EOF
     wget https://packages.microsoft.com/config/debian/13/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
     dpkg -i packages-microsoft-prod.deb
     rm packages-microsoft-prod.deb
+EOF
+
+#
+# Install nodejs
+#
+
+RUN <<-EOF
+cd /tmp
+
+wget https://nodejs.org/dist/v24.16.0/node-v24.16.0-linux-x64.tar.xz
+
+tar -xf node-v24.16.0-linux-x64.tar.xz
+
+cp -r node-v24.16.0-linux-x64/{bin,include,lib,share} /usr/local/
+
+rm -rf node-v24.16.0-linux-x64
+rm -rf node-v24.16.0-linux-x64.tar.xz
+
+corepack enable pnpm
+corepack enable yarn
 EOF
 
 #
@@ -94,13 +124,14 @@ VOLUME /home/nonroot/.cargo
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --no-modify-path --profile minimal --default-toolchain none -y
 
 #
-# Make nodejs available
+# Make nodejs caches cacheable
 #
-ENV NVM_DIR=/home/nonroot/.nvm
 RUN mkdir -p /home/nonroot/.npm && touch /home/nonroot/.npm/.keep
 VOLUME /home/nonroot/.npm
-VOLUME /home/nonroot/.nvm
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh | bash
+
+RUN npm config set prefix /home/nonroot/.local
+RUN corepack install -g pnpm
+RUN corepack install -g yarn
 
 # Set up working directory and change ownership
 WORKDIR /app
@@ -110,7 +141,6 @@ RUN chown -R nonroot:nonroot /app
 # Install required tools versions
 #
 RUN sudo apt-get update && sudo apt-get install -y dotnet-sdk-10.0 powershell
-RUN bash -c "source $NVM_DIR/nvm.sh && nvm install --lts"
 RUN rustup toolchain install stable
 RUN uv python install 3.14
 
