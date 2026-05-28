@@ -1,0 +1,17 @@
+{
+  "name": "agentic-compose",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "frontend/*"
+  ],
+  "scripts": {
+    "lint": "eslint \"frontend/**/*.{js,jsx,ts,tsx}\"",
+    "format": "prettier --write \"frontend/**/*.{js,jsx,ts,tsx,css,html,json}\"",
+    "lint:fix": "eslint \"frontend/**/*.{js,jsx,ts,tsx}\" --fix"
+  },
+  "devDependencies": {
+    "eslint": "^10.4.0",
+    "prettier": "^3.8.3"
+  }
+}

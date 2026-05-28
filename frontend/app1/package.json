@@ -1,0 +1,16 @@
+{
+  "name": "app1",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 5001",
+    "build": "vite build",
+    "preview": "vite preview --port 5001"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "@originjs/vite-plugin-federation": "^1.1.2"
+  }
+}
