@@ -20,6 +20,7 @@ services:
       - cargo_path:/home/nonroot/.cargo
       - node_path:/home/nonroot/.nvm
       - node_cache_path:/home/nonroot/.npm
+      - $HOME/.config/git/git-vibes.inc:/home/nonroot/.gitconfig
     environment:
       - MONGO_URI=mongodb://root:devpassword@mongodb:27017/app?authSource=admin
       - REDIS_URI=redis://redis:6379
