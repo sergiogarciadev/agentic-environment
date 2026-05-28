@@ -18,6 +18,7 @@ export default defineConfig({
     cssCodeSplit: false,
   },
   server: {
+    host: "0.0.0.0",
     port: 5001,
     cors: true,
     headers: {
