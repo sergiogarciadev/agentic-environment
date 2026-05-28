@@ -72,10 +72,13 @@ const mountApp = async () => {
   // Attempt to load the remote Button module dynamically
   try {
     const remoteModule = await import("app1/Button");
-    const remoteContainer = document.getElementById("remote-container");
-    if (remoteContainer && remoteModule && remoteModule.mountButton) {
-      remoteContainer.innerHTML = "";
-      remoteModule.mountButton(remoteContainer);
+    if (remoteModule && remoteModule.default) {
+      const remoteButton = remoteModule.default;
+      const remoteContainer = document.getElementById("remote-container");
+      if (remoteContainer) {
+        remoteContainer.innerHTML = "";
+        remoteButton.mountButton(remoteContainer);
+      }
     }
   } catch (error) {
     console.warn(
