@@ -11,15 +11,31 @@ RUN apt-get update && apt-get install -y --no-install-recommends              \
     build-essential                                                           \
     ca-certificates                                                           \
     clang                                                                     \
+    cmake                                                                     \
     curl                                                                      \
     git                                                                       \
     jq                                                                        \
     inetutils-ping                                                            \
     llvm                                                                      \
     make                                                                      \
+    maven                                                                     \
+    openjdk-25-jdk                                                            \
     sudo                                                                      \
     wget                                                                      \
     && rm -rf /var/lib/apt/lists/*
+
+#
+# Make dotnet repository available
+#
+RUN <<-EOF
+    wget https://packages.microsoft.com/config/debian/13/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+    dpkg -i packages-microsoft-prod.deb
+    rm packages-microsoft-prod.deb
+EOF
+
+#
+# Create non root user
+#
 
 # Define default UID and GID for the non-root user
 ARG UID=1000
@@ -33,8 +49,10 @@ RUN (groupadd -g ${GID} nonroot || groupadd nonroot) && \
 # Switch to the non-root user
 USER nonroot
 
+ENV PATH="/home/nonroot/.local/bin:${PATH}"
+
 #
-# Make
+# Make cache directory available
 #
 RUN mkdir -p /home/nonroot/.cache && touch /home/nonroot/.cache/.keep
 VOLUME /home/nonroot/.cache
@@ -88,8 +106,12 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh | b
 WORKDIR /app
 RUN chown -R nonroot:nonroot /app
 
+#
+# Install required tools versions
+#
+RUN sudo apt-get update && sudo apt-get install -y dotnet-sdk-10.0 powershell
 RUN bash -c "source $NVM_DIR/nvm.sh && nvm install --lts"
 RUN rustup toolchain install stable
-RUN uv python install
+RUN uv python install 3.14
 
 CMD [ "sleep", "infinity" ]

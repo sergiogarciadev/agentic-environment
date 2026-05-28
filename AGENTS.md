@@ -1,12 +1,8 @@
 # AGENTS.md
 
-This document establishes the mandatory operational boundaries and workflows for all AI coding agents (such as Antigravity, Gemini, Cursor, Copilot, etc.) interacting with this codebase.
-
----
-
 ## The Host Execution Ban
 
-To ensure environment consistency, host security, and zero local configuration drift, **no AI agent is permitted to compile, execute, test, lint, or run tools directly on the host machine.**
+To ensure environment consistency, host security, and zero local configuration drift, **no AI agent is permitted to execute any command outside the container environment**
 
 All project workflows must take place within the running Docker containers.
 
@@ -20,10 +16,13 @@ The development environment is orchestrated using Docker Compose (`compose.yml`)
     - `git`
     - `jq`
   - programming environment:
-    - `clang` and `llvm`
-    - `go`: 1.26
+    - `clang` and `llvm` managed by `apt-get`
+    - `cmake` and `make` managed by `apt-get`
+    - `dotnet` and `pwsh` managed by `apt-get`
+    - `gcc` and `g++` managed by `apt-get`
+    - `go`: 1.26 installed manually
+    - `java` and `javac` managed by `apt-get`
     - `node` and `npm` managed by `nvm`
-    - `make` and `gcc` managed by `apt-get`
     - `python` managed by `uv`
     - `rustc` and `cargo` managed by `rustup`
   - system utilities:
@@ -33,101 +32,19 @@ The development environment is orchestrated using Docker Compose (`compose.yml`)
     - `wget`
     - `sudo`
 2. **`mongodb`**: Persisted dev MongoDB instance.
-3. **`redis`**: Persisted dev Redis cache.
+3. **`postgres`**: Persisted dev PostgreSQL instance with pgvector extension.
+4. **`redis`**: Persisted dev Redis cache.
 
-Use `apt-get` to install any missing tools you require
+If required, install tools in the container using the corresponding package manager, such as `apt-get`, `npm`, `uv`, `cargo`, etc. You may also use `curl` and `wget` to download and install tools.
 
----
-
-### Using other tools
-
-#### APT
-
-##### Run apt
-
-- **❌ Forbidden Host commands:** `apt`
-- ** Enforced Containerized command:**
-  ```bash
-  docker compose exec app apt
-  ```
-
-##### Install Packages
-
-- **❌ Forbidden Host commands:** `apt-get` or `apt install`
-- ** Enforced Containerized command:**
-  ```bash
-  docker compose exec app apt-get install
-  docker compose exec app apt install
-  ```
-
-#### NodeJS
-
-##### Run nodejs
-
-- **❌ Forbidden Host commands:** `node` or `nodejs`
-- ** Enforced Containerized command:**
-  ```bash
-  docker compose exec app node
-  ```
-
-##### Install Packages
-
-- **❌ Forbidden Host commands:** `npx` or `npm` or `yarn` or `pnpm`
-- ** Enforced Containerized command:**
-  ```bash
-  docker compose exec app npx
-  docker compose exec app npm
-  ```
-
-#### Python
-
-##### Run python
-
-- **❌ Forbidden Host commands:** `python` or `python3`
-- ** Enforced Containerized command:**
-  ```bash
-  docker compose exec app uv run python
-  ```
-
-##### Install Packages
-
-- **❌ Forbidden Host commands:** `pip` or `uv`
-- ** Enforced Containerized command:**
-  ```bash
-  docker compose exec app uv add
-  docker compose exec app uv install
-  ```
-
-#### Rust
-
-##### Run rust
-
-- **❌ Forbidden Host commands:** `rustc`
-- ** Enforced Containerized command:**
-  ```bash
-  docker compose exec app rustc
-  ```
-
-##### Install Packages
-
-- **❌ Forbidden Host commands:** `cargo` or `rustup`
-- ** Enforced Containerized command:**
-  ```bash
-  docker compose exec app cargo
-  docker compose exec app rustup
-  ```
+**IMPORTANT:** Never run commands in the host, instead use `docker compose exec app <command>`.
 
 ---
 
 ## Package Caches
 
-Packages are cached using docker volumes, if you got any error for missing installed tools (like node, npm, cargo, etc), just rebuild the docker image with `docker compose build --no-cache`.
-
----
-
-## Agent Setup Verification Checklist
+Packages are cached using docker volumes, if you got any error for missing installed tools (like node, npm, cargo, etc), just rebuild the docker image with `docker compose build app` and restart the stack with `docker compose up -d`.
 
 Prior to initiating code modifications, all agents should:
 1. **Check Stack Status**: Run `docker compose ps` to ensure development containers are active.
-2. **Ensure Network Connectivity**: Verify endpoints can be reached through container networks (internally wired via `app_net`).
-3. **Read Code Guidelines**: Review `.golangci.yml` and `.cursorrules` to ensure all edits comply with strict static checks.
+2. **Ensure Volumes are Mounted**: Run `ls -lha $HOME` to check if any directory are accessible only by root user, which indicates incorrect mounts. To fix rebuild and restart `app` service.
