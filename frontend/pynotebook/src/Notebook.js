@@ -44,7 +44,7 @@ const loadPyodideScript = () => {
       return;
     }
     const script = document.createElement("script");
-    script.src = "https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js";
+    script.src = "https://cdn.jsdelivr.net/pyodide/v0.29.4/full/pyodide.js";
     script.onload = () => resolve(window.loadPyodide);
     script.onerror = (err) => reject(err);
     document.head.appendChild(script);
@@ -59,7 +59,7 @@ const getPyodide = (onStatusChange) => {
     const loadPyodide = await loadPyodideScript();
     onStatusChange("Initializing Pyodide virtual machine...");
     pyodideInstance = await loadPyodide({
-      indexURL: "https://cdn.jsdelivr.net/pyodide/v0.25.0/full/",
+      indexURL: "https://cdn.jsdelivr.net/pyodide/v0.29.4/full/",
     });
     onStatusChange("Loading package manager (micropip)...");
     await pyodideInstance.loadPackage("micropip");
@@ -383,8 +383,8 @@ plt.plot(t, y, label="Decaying Sine", color="#a855f7", linewidth=2.5)
 plt.title("Wasm Matplotlib Graphics Render", color="white", fontsize=11)
 plt.xlabel("Time", color="#9ca3af")
 plt.ylabel("Amplitude", color="#9ca3af")
-plt.grid(True, color="rgba(255,255,255,0.05)")
-plt.legend(facecolor="#1e293b", edgecolor="rgba(255,255,255,0.1)", labelcolor="white")
+plt.grid(True, color="red")
+plt.legend(facecolor="#1e293b", edgecolor="blue", labelcolor="white")
 plt.tight_layout()
 
 # Run this cell to generate and render this plot purely in your browser!
