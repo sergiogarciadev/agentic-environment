@@ -45,6 +45,16 @@ const mountApp = async () => {
           </div>
         </div>
       </div>
+
+      <!-- PyNotebook Section -->
+      <div id="notebook-shell-container" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 8px; padding: 2rem; display: flex; flex-direction: column; gap: 1rem;">
+        <div id="notebook-mount">
+          <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); padding: 1rem 1.5rem; border-radius: 8px; text-align: center; max-width: 400px; margin: 0 auto;">
+            <p style="margin: 0; font-size: 0.85rem; color: #f87171; font-weight: 600;">Interactive Wasm Notebook offline</p>
+            <p style="margin: 0.25rem 0 0; font-size: 0.75rem; color: #fca5a5;">Start frontend/pynotebook workspace to activate local REPL</p>
+          </div>
+        </div>
+      </div>
     </div>
   `;
 
@@ -83,6 +93,24 @@ const mountApp = async () => {
   } catch (error) {
     console.warn(
       '⚠️ Could not mount remote component "app1/Button":',
+      error.message,
+    );
+  }
+
+  // Attempt to load the remote Notebook module dynamically
+  try {
+    const notebookModule = await import("pynotebook/Notebook");
+    if (notebookModule && notebookModule.default) {
+      const remoteNotebook = notebookModule.default;
+      const notebookMount = document.getElementById("notebook-mount");
+      if (notebookMount) {
+        notebookMount.innerHTML = "";
+        remoteNotebook.mountNotebook(notebookMount);
+      }
+    }
+  } catch (error) {
+    console.warn(
+      '⚠️ Could not mount remote component "pynotebook/Notebook":',
       error.message,
     );
   }

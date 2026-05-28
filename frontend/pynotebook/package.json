@@ -1,0 +1,16 @@
+{
+  "name": "pynotebook",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"vite build --watch\" \"vite preview\"",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "@originjs/vite-plugin-federation": "^1.1.2"
+  }
+}

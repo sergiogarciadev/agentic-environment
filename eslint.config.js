@@ -11,7 +11,8 @@ export default [
         window: 'readonly',
         console: 'readonly',
         setTimeout: 'readonly',
-        clearTimeout: 'readonly'
+        clearTimeout: 'readonly',
+        alert: 'readonly'
       }
     },
     rules: {

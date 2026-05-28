@@ -12,7 +12,8 @@
     "dev:backend": "uv run python backend/manage.py runserver 0.0.0.0:8000",
     "dev:shell": "npm run dev -w frontend/shell",
     "dev:app1": "npm run dev -w frontend/app1",
-    "dev": "concurrently \"npm:dev:backend\" \"npm:dev:shell\" \"npm:dev:app1\" --names \"backend,shell,app1\" --prefix-colors \"cyan,green,magenta\""
+    "dev:pynotebook": "npm run dev -w frontend/pynotebook",
+    "dev": "concurrently \"npm:dev:backend\" \"npm:dev:shell\" \"npm:dev:app1\" \"npm:dev:pynotebook\" --names \"backend,shell,app1,pynotebook\" --prefix-colors \"cyan,green,magenta,yellow\""
   },
   "devDependencies": {
     "concurrently": "^9.2.1",

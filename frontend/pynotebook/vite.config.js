@@ -4,15 +4,15 @@ import federation from "@originjs/vite-plugin-federation";
 export default defineConfig({
   plugins: [
     federation({
-      name: "shell",
-      remotes: {
-        app1: "http://localhost:5001/assets/remoteEntry.js",
-        pynotebook: "http://localhost:5002/assets/remoteEntry.js",
+      name: "pynotebook",
+      filename: "remoteEntry.js",
+      exposes: {
+        "./Notebook": "./src/Notebook.js",
       },
       shared: [],
     }),
   ],
-  base: "http://localhost:5000/",
+  base: "http://localhost:5002/",
   build: {
     modulePreload: false,
     target: "esnext",
@@ -24,15 +24,12 @@ export default defineConfig({
   },
   server: {
     host: "0.0.0.0",
-    port: 5000,
+    port: 5002,
     cors: true,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-    },
   },
   preview: {
     host: "0.0.0.0",
-    port: 5000,
+    port: 5002,
     cors: true,
     headers: {
       "Access-Control-Allow-Origin": "*",
