@@ -14,6 +14,7 @@ export default defineConfig({
   ],
   base: "http://localhost:5001/",
   build: {
+    sourcemap: true,
     modulePreload: false,
     target: "esnext",
     minify: false,
